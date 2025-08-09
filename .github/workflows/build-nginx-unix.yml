@@ -99,7 +99,7 @@ jobs:
           --with-pcre=${{ env.BUILD_DIR }}/pcre2-${{ env.PCRE2_VERSION }} \
           --with-zlib=${{ env.BUILD_DIR }}/zlib-${{ env.ZLIB_VERSION }} \
           --with-openssl=${{ env.BUILD_DIR }}/openssl-${{ env.OPENSSL_VERSION }} \
-          --with-openssl-opt='no-shared no-tests no-makedepend -D_WIN32_WINNT=0x0501' \
+          --with-openssl-opt='no-shared no-tests no-makedepend' \
           --with-http_v2_module  \
           --with-http_realip_module  \
           --with-http_addition_module  \
@@ -138,6 +138,9 @@ jobs:
     
     - name: Verify custom paths configuration
       run: |
+        echo "Checking contents of INSTALL_PREFIX: ${{ env.INSTALL_PREFIX }}"
+        ls -la ${{ env.INSTALL_PREFIX }}  # 查看安装目录是否有文件
+        
         # 检查配置文件是否存在于指定路径
         ls -la ${{ env.CONF_PATH }}/nginx.conf
         
@@ -147,7 +150,7 @@ jobs:
         # 检查临时目录结构
         ls -la ${{ env.TMP_PATH }}
 
-        ldd ${{ env.INSTALL_DIR }}/sbin/nginx  # 显示依赖库版本，确认兼容性
+        ldd ${{ env.INSTALL_PREFIX }}/sbin/nginx  # 显示依赖库版本，确认兼容性
         
     - name: Package build artifacts
       run: |
