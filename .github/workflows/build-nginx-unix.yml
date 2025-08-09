@@ -154,7 +154,7 @@ jobs:
         
     - name: Package build artifacts
       run: |
-        tar -czf nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz -C ${{ env.INSTALL_PREFIX }}
+        tar -czvf nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz ${{ env.INSTALL_PREFIX }}/
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
