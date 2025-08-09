@@ -42,11 +42,11 @@ jobs:
         echo "PID_PATH=run" >> $GITHUB_ENV
         echo "LOG_PATH=logs" >> $GITHUB_ENV
         echo "TMP_PATH=tmp" >> $GITHUB_ENV
-        echo "CLIENT_BODY_TEMP_PATH=tmp/client_body" >> $GITHUB_ENV
-        echo "PROXY_TEMP_PATH=tmp/proxy" >> $GITHUB_ENV
-        echo "FASTCGI_TEMP_PATH=tmp/fastcgi" >> $GITHUB_ENV
-        echo "UWSGI_TEMP_PATH=tmp/uwsgi" >> $GITHUB_ENV
-        echo "SCGI_TEMP_PATH=tmp/scgi" >> $GITHUB_ENV
+        echo "CLIENT_BODY_TEMP_PATH=\${TMP_PATH}/client_body" >> $GITHUB_ENV
+        echo "PROXY_TEMP_PATH=\${TMP_PATH}/proxy" >> $GITHUB_ENV
+        echo "FASTCGI_TEMP_PATH=\${TMP_PATH}/fastcgi" >> $GITHUB_ENV
+        echo "UWSGI_TEMP_PATH=\${TMP_PATH}/uwsgi" >> $GITHUB_ENV
+        echo "SCGI_TEMP_PATH=\${TMP_PATH}/scgi" >> $GITHUB_ENV
 
         # 构建目录
         echo "BUILD_DIR=$(pwd)/build" >> $GITHUB_ENV
