@@ -96,7 +96,7 @@ jobs:
           --http-fastcgi-temp-path=${{ env.FASTCGI_TEMP_PATH }} \
           --http-uwsgi-temp-path=${{ env.UWSGI_TEMP_PATH }} \
           --http-scgi-temp-path=${{ env.SCGI_TEMP_PATH }} \
-          --with-pcre=${{ env.BUILD_DIR }}/pcre-${{ env.PCRE_VERSION }} \
+          --with-pcre=${{ env.BUILD_DIR }}/pcre2-${{ env.PCRE_VERSION }} \
           --with-zlib=${{ env.BUILD_DIR }}/zlib-${{ env.ZLIB_VERSION }} \
           --with-openssl=${{ env.BUILD_DIR }}/openssl-${{ env.OPENSSL_VERSION }} \
           --with-openssl-opt='no-shared no-tests no-makedepend -D_WIN32_WINNT=0x0501' \
