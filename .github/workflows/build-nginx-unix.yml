@@ -38,15 +38,15 @@ jobs:
         echo "INSTALL_PREFIX=$(pwd)/nginx" >> $GITHUB_ENV
 
         # 自定义路径设置
-        echo "CONF_PATH=$(pwd)/nginx/conf" >> $GITHUB_ENV
-        echo "PID_PATH=$(pwd)/nginx/run/nginx.pid" >> $GITHUB_ENV
-        echo "LOG_PATH=$(pwd)/nginx/logs" >> $GITHUB_ENV
-        echo "TMP_PATH=$(pwd)/nginx/tmp" >> $GITHUB_ENV
-        echo "CLIENT_BODY_TEMP_PATH=$(pwd)/nginx/tmp/client_body" >> $GITHUB_ENV
-        echo "PROXY_TEMP_PATH=$(pwd)/nginx/tmp/proxy" >> $GITHUB_ENV
-        echo "FASTCGI_TEMP_PATH=$(pwd)/nginx/tmp/fastcgi" >> $GITHUB_ENV
-        echo "UWSGI_TEMP_PATH=$(pwd)/nginx/tmp/uwsgi" >> $GITHUB_ENV
-        echo "SCGI_TEMP_PATH=$(pwd)/nginx/tmp/scgi" >> $GITHUB_ENV
+        echo "CONF_PATH=conf" >> $GITHUB_ENV
+        echo "PID_PATH=run" >> $GITHUB_ENV
+        echo "LOG_PATH=logs" >> $GITHUB_ENV
+        echo "TMP_PATH=tmp" >> $GITHUB_ENV
+        echo "CLIENT_BODY_TEMP_PATH=\${TMP_PATH}/client_body" >> $GITHUB_ENV
+        echo "PROXY_TEMP_PATH=\${TMP_PATH}/proxy" >> $GITHUB_ENV
+        echo "FASTCGI_TEMP_PATH=\${TMP_PATH}/fastcgi" >> $GITHUB_ENV
+        echo "UWSGI_TEMP_PATH=\${TMP_PATH}/uwsgi" >> $GITHUB_ENV
+        echo "SCGI_TEMP_PATH=\${TMP_PATH}/scgi" >> $GITHUB_ENV
 
         # 构建目录
         echo "BUILD_DIR=$(pwd)/build" >> $GITHUB_ENV
@@ -55,14 +55,14 @@ jobs:
       run: |
         mkdir -p ${{ env.BUILD_DIR }}
         
-        mkdir -p ${{ env.CONF_PATH }}
-        mkdir -p $(dirname ${{ env.PID_PATH }})
-        mkdir -p ${{ env.LOG_PATH }}
-        mkdir -p ${{ env.CLIENT_BODY_TEMP_PATH }}
-        mkdir -p ${{ env.PROXY_TEMP_PATH }}
-        mkdir -p ${{ env.FASTCGI_TEMP_PATH }}
-        mkdir -p ${{ env.UWSGI_TEMP_PATH }}
-        mkdir -p ${{ env.SCGI_TEMP_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.CONF_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.PID_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.LOG_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.CLIENT_BODY_TEMP_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.PROXY_TEMP_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.FASTCGI_TEMP_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.UWSGI_TEMP_PATH }}
+        mkdir -p ${{INSTALL_PREFIX}}/${{ env.SCGI_TEMP_PATH }}
         
     - name: Download sources
       run: |
@@ -88,7 +88,7 @@ jobs:
         ./configure \
           --prefix=${{ env.INSTALL_PREFIX }} \
           --conf-path=${{ env.CONF_PATH }}/nginx.conf \
-          --pid-path=${{ env.PID_PATH }} \
+          --pid-path=${{ env.PID_PATH }}/nginx.pid \
           --error-log-path=${{ env.LOG_PATH }}/error.log \
           --http-log-path=${{ env.LOG_PATH }}/access.log \
           --http-client-body-temp-path=${{ env.CLIENT_BODY_TEMP_PATH }} \
@@ -138,18 +138,22 @@ jobs:
     
     - name: Verify custom paths configuration
       run: |
-        echo "Checking contents of INSTALL_PREFIX: ${{ env.INSTALL_PREFIX }}"
+        echo "Checking contents of ${{ env.INSTALL_PREFIX }}"
         ls -la ${{ env.INSTALL_PREFIX }}  # 查看安装目录是否有文件
         
         # 检查配置文件是否存在于指定路径
-        ls -la ${{ env.CONF_PATH }}/nginx.conf
-        
-        # 检查Nginx版本和配置参数
-        ${{ env.INSTALL_PREFIX }}/sbin/nginx -V
+        echo "Checking contents of ${{ env.INSTALL_PREFIX }}/${{ env.CONF_PATH }}"
+        ls -la ${{ env.INSTALL_PREFIX }}/${{ env.CONF_PATH }}
         
         # 检查临时目录结构
-        ls -la ${{ env.TMP_PATH }}
+        echo "Checking contents of ${{ env.INSTALL_PREFIX }}/${{ env.TMP_PATH }}"
+        ls -la ${{ env.INSTALL_PREFIX }}/${{ env.TMP_PATH }}
 
+        # 检查Nginx版本和配置参数
+        echo "Checking nginx -V"
+        ${{ env.INSTALL_PREFIX }}/sbin/nginx -V
+
+        echo "Checking nginx by ldd"
         ldd ${{ env.INSTALL_PREFIX }}/sbin/nginx  # 显示依赖库版本，确认兼容性
         
     - name: Package build artifacts
