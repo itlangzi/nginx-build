@@ -73,6 +73,8 @@ jobs:
         wget http://nginx.org/download/nginx-${{ env.NGINX_VERSION }}.tar.gz -P ${{ env.BUILD_DIR }}
         tar -zxf ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}
         
+        mkdir -p ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}/pkgs
+
         # Download PCRE
         wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${{ env.PCRE2_VERSION }}/pcre2-${{ env.PCRE2_VERSION }}.tar.gz -P ${{ env.BUILD_DIR }}
         tar -zxf ${{ env.BUILD_DIR }}/pcre2-${{ env.PCRE2_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}/pkgs
