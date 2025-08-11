@@ -50,8 +50,7 @@ jobs:
         echo "SCGI_TEMP_PATH=\${TMP_PATH}/scgi" >> $GITHUB_ENV
 
         # 构建目录
-        # echo "BUILD_DIR=$(pwd)/build" >> $GITHUB_ENV
-        echo "BUILD_DIR=./build" >> $GITHUB_ENV
+        echo "BUILD_DIR=$(pwd)/build" >> $GITHUB_ENV
 
     - name: Create directories
       run: |
