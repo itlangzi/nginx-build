@@ -155,12 +155,14 @@ jobs:
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.SCGI_TEMP_PATH }}
         cp -r conf/ ${{env.INSTALL_PREFIX}}/
         cp -r scripts ${{env.INSTALL_PREFIX}}/
+
+        CONF=${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cf/set_real_ip_from.conf
         # 清空文件内容
-        > ${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cf/set_real_ip_from.conf
-        curl -fsS https://www.cloudflare.com/ips-v4 >> ${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cf/set_real_ip_from.conf
-        echo "" >> ${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cf/set_real_ip_from.conf
-        curl -fsS https://www.cloudflare.com/ips-v6 >> ${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cf/set_real_ip_from.conf
-        echo "" >> ${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cf/set_real_ip_from.conf
+        > $CONF
+        curl -fsS https://www.cloudflare.com/ips-v4 >> $CONF
+        echo "" >> $CONF
+        curl -fsS https://www.cloudflare.com/ips-v6 >> $CONF
+        echo "" >> $CONF
 
     - name: Verify custom paths configuration
       run: |
