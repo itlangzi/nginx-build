@@ -36,6 +36,7 @@ jobs:
 
         # 主安装目录
         # echo "INSTALL_PREFIX=$(pwd)/nginx" >> $GITHUB_ENV
+        echo "INSTALL_ROOT=$(pwd)" >> $GITHUB_ENV
         echo "INSTALL_PREFIX=./nginx" >> $GITHUB_ENV
 
         # 自定义路径设置
@@ -139,6 +140,7 @@ jobs:
     
     - name: Verify custom paths configuration
       run: |
+        cd ${{ INSTALL_ROOT }}
         echo "Checking contents of ${{ env.INSTALL_PREFIX }}"
         ls -la ${{ env.INSTALL_PREFIX }}  # 查看安装目录是否有文件
         
@@ -158,11 +160,12 @@ jobs:
         
     - name: Package build artifacts
       run: |
+        cd ${{ INSTALL_ROOT }}
         tar -czvf nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz -C ${{ env.INSTALL_PREFIX }} .
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: nginx-build
-        path: nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz
+        path: ${{ INSTALL_ROOT }}/nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz
         retention-days: 14
