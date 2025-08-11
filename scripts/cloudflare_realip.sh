@@ -5,10 +5,14 @@ TMP="$(mktemp)"
 
 # 拉取并生成配置（v4+v6）
 > $TMP
-curl -fsS https://www.cloudflare.com/ips-v4 >> $TMP
-echo "" >> $TMP
-curl -fsS https://www.cloudflare.com/ips-v6 >> $TMP
-echo "" >> $TMP
+echo "# - IPv4" >> $TMP
+for i in `curl -s -L https://www.cloudflare.com/ips-v4`; do
+        echo "set_real_ip_from $i;" >> $TMP;
+done
+echo "# - IPv6" >> $TMP
+for i in `curl -s -L https://www.cloudflare.com/ips-v6`; do
+        echo "set_real_ip_from $i;" >> $TMP;
+done
 
 # 下载成功且非空时才覆盖
 if [ -s "$TMP" ]; then
