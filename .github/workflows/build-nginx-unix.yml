@@ -150,9 +150,8 @@ jobs:
         echo "Checking contents of ${{ env.INSTALL_PREFIX }}/${{ env.TMP_PATH }}"
         ls -la ${{ env.INSTALL_PREFIX }}/${{ env.TMP_PATH }}
 
-        # 检查Nginx版本和配置参数
         echo "Checking nginx -V"
-        ${{ env.INSTALL_PREFIX }}/sbin/nginx -V
+        ${{ env.INSTALL_PREFIX }}/sbin/nginx -V -p ${{ env.INSTALL_PREFIX }}
 
         echo "Checking nginx by ldd"
         ldd ${{ env.INSTALL_PREFIX }}/sbin/nginx  # 显示依赖库版本，确认兼容性
