@@ -1,6 +1,6 @@
 #!/bin/bash
 NGX="./sbin/nginx"
-CONF="conf/conf.d/cdn/cf/set_real_ip_from.conf"
+CONF="conf/conf.d/cdn/cloudflare/set_real_ip_from.conf"
 TMP="$(mktemp)"
 
 # 拉取并生成配置（v4+v6）
