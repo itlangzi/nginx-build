@@ -137,7 +137,7 @@ jobs:
         cd ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}
         make -j$(nproc)
         make install
-        mv ${{ env.INSTALL_PREFIX }} ${{ env.INSTALL_ROOT }}/ 
+        mv -f ${{ env.INSTALL_PREFIX }} ${{ env.INSTALL_ROOT }}/ 
     
     - name: Verify custom paths configuration
       run: |
