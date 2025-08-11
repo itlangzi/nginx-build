@@ -137,6 +137,7 @@ jobs:
         cd ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}
         make -j$(nproc)
         make install
+        mv ${{ env.INSTALL_PREFIX }} ${{ env.INSTALL_ROOT }}/ 
     
     - name: Verify custom paths configuration
       run: |
@@ -160,12 +161,11 @@ jobs:
         
     - name: Package build artifacts
       run: |
-        cd ${{ env.INSTALL_ROOT }}
         tar -czvf nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz -C ${{ env.INSTALL_PREFIX }} .
         
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: nginx-build
-        path: ${{ env.INSTALL_ROOT }}/nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz
+        path: nginx-${{ env.NGINX_VERSION }}-linux-x86_64.tar.gz
         retention-days: 14
