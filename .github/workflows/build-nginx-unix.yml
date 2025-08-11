@@ -51,7 +51,7 @@ jobs:
         echo "SCGI_TEMP_PATH=\${TMP_PATH}/scgi" >> $GITHUB_ENV
 
         # 构建目录
-        echo "BUILD_DIR=$(pwd)/build" >> $GITHUB_ENV
+        echo "BUILD_DIR=build" >> $GITHUB_ENV
 
     # - name: Create directories
     #   run: |
@@ -75,15 +75,15 @@ jobs:
         
         # Download PCRE
         wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${{ env.PCRE2_VERSION }}/pcre2-${{ env.PCRE2_VERSION }}.tar.gz -P ${{ env.BUILD_DIR }}
-        tar -zxf ${{ env.BUILD_DIR }}/pcre2-${{ env.PCRE2_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}
+        tar -zxf ${{ env.BUILD_DIR }}/pcre2-${{ env.PCRE2_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}/pkgs
         
         # Download zlib
         wget https://github.com/madler/zlib/releases/download/v${{ env.ZLIB_VERSION }}/zlib-${{ env.ZLIB_VERSION }}.tar.gz -P ${{ env.BUILD_DIR }}
-        tar -zxf ${{ env.BUILD_DIR }}/zlib-${{ env.ZLIB_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}
+        tar -zxf ${{ env.BUILD_DIR }}/zlib-${{ env.ZLIB_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}/pkgs
         
         # Download OpenSSL
         wget https://github.com/openssl/openssl/releases/download/openssl-${{ env.OPENSSL_VERSION }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz -P ${{ env.BUILD_DIR }}
-        tar -zxf ${{ env.BUILD_DIR }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}
+        tar -zxf ${{ env.BUILD_DIR }}/openssl-${{ env.OPENSSL_VERSION }}.tar.gz -C ${{ env.BUILD_DIR }}/nginx-${{ env.NGINX_VERSION }}/pkgs
         
     - name: Configure Nginx for compatibility
       run: |
@@ -99,9 +99,9 @@ jobs:
           --http-fastcgi-temp-path=${{ env.FASTCGI_TEMP_PATH }} \
           --http-uwsgi-temp-path=${{ env.UWSGI_TEMP_PATH }} \
           --http-scgi-temp-path=${{ env.SCGI_TEMP_PATH }} \
-          --with-pcre=${{ env.BUILD_DIR }}/pcre2-${{ env.PCRE2_VERSION }} \
-          --with-zlib=${{ env.BUILD_DIR }}/zlib-${{ env.ZLIB_VERSION }} \
-          --with-openssl=${{ env.BUILD_DIR }}/openssl-${{ env.OPENSSL_VERSION }} \
+          --with-pcre=pkgs/pcre2-${{ env.PCRE2_VERSION }} \
+          --with-zlib=pkgs/zlib-${{ env.ZLIB_VERSION }} \
+          --with-openssl=pkgs/openssl-${{ env.OPENSSL_VERSION }} \
           --with-openssl-opt='no-shared no-tests no-makedepend' \
           --with-http_v2_module  \
           --with-http_realip_module  \
