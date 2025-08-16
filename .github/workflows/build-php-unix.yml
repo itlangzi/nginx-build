@@ -1,0 +1,121 @@
+name: 编译PHP(含FPM)+OpenSSL并上传产物
+on:
+  # push:
+  #   branches: [main]
+  # pull_request:
+  #   branches: [main]
+  workflow_dispatch:
+
+jobs:
+  compile:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        php-version: [
+          '8.1', 
+          # '8.2', 
+          # '8.3'
+        ]
+    
+    steps:
+      - name: 检查代码仓库
+        uses: actions/checkout@v4
+
+      - name: 安装系统依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential autoconf automake libtool bison re2c \
+            libxml2-dev libsqlite3-dev libcurl4-openssl-dev libonig-dev \
+            libzip-dev zlib1g-dev libjpeg-dev libwebp-dev libfreetype6-dev \
+            libpng-dev libxpm-dev libgd-dev libmcrypt-dev libreadline-dev \
+            libxslt1-dev pkg-config wget
+
+      - name: 下载并编译 OpenSSL 1.1.1w
+        run: |
+          wget https://github.com/openssl/openssl/releases/download/OpenSSL_1_1_1w/openssl-1.1.1w.tar.gz \
+            --no-check-certificate
+          tar -zxf openssl-1.1.1w.tar.gz
+          cd openssl-1.1.1w
+          ./config --prefix=/usr/local/openssl-1.1.1 \
+            --openssldir=/usr/local/openssl-1.1.1 shared zlib
+          make -j$(nproc)
+          sudo make install
+          sudo ln -s /usr/local/openssl-1.1.1/lib/libssl.so.1.1 /usr/lib/
+          sudo ln -s /usr/local/openssl-1.1.1/lib/libcrypto.so.1.1 /usr/lib/
+          echo "/usr/local/openssl-1.1.1/lib" | sudo tee -a /etc/ld.so.conf.d/openssl-1.1.1.conf
+          sudo ldconfig
+
+      - name: 下载并编译 PHP（含FPM）
+        run: |
+          PHP_VERSION=${{ matrix.php-version }}
+          wget https://www.php.net/distributions/php-$PHP_VERSION.tar.gz
+          tar -zxf php-$PHP_VERSION.tar.gz
+          cd php-$PHP_VERSION
+          ./configure \
+            --prefix=/usr/local/php \
+            --with-config-file-path=/usr/local/php/etc \
+            --with-config-file-scan-dir=/usr/local/php/etc/conf.d \
+            --enable-mbstring --enable-ftp --enable-gd --enable-gd-jis-conv \
+            --enable-mysqlnd --enable-pdo --enable-sockets --enable-fpm \
+            --enable-xml --enable-soap --enable-intl --enable-zip \
+            --enable-bcmath --enable-calendar --enable-exif --enable-json \
+            --enable-opcache --enable-phar --enable-posix --enable-session \
+            --enable-shmop --enable-simplexml --enable-sysvmsg --enable-sysvsem \
+            --enable-sysvshm --enable-wddx --enable-xmlreader --enable-xmlwriter \
+            --with-curl --with-freetype --with-jpeg --with-webp --with-xpm --with-gd \
+            --with-iconv --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd \
+            --with-pdo-sqlite --with-pear --with-png --with-readline --with-xsl \
+            --with-zlib --with-openssl=/usr/local/openssl-1.1.1 --with-libzip \
+            --with-fpm-user=www-data --with-fpm-group=www-data  # FPM用户组配置
+          make -j$(nproc)
+          sudo make install
+
+      - name: 配置 PHP-FPM
+        run: |
+          PHP_VERSION=${{ matrix.php-version }}
+          # 复制FPM配置文件
+          sudo cp /usr/local/php/etc/php-fpm.conf.default /usr/local/php/etc/php-fpm.conf
+          sudo cp /usr/local/php/etc/php-fpm.d/www.conf.default /usr/local/php/etc/php-fpm.d/www.conf
+          
+          # 配置FPM监听端口
+          sudo sed -i 's/listen = 127.0.0.1:9000/listen = 0.0.0.0:9000/' /usr/local/php/etc/php-fpm.d/www.conf
+          
+          # 设置错误日志路径
+          sudo sed -i 's/;error_log = log\/php-fpm.log/error_log = \/var\/log\/php-fpm.log/' /usr/local/php/etc/php-fpm.conf
+          
+          # 创建日志目录并授权
+          sudo mkdir -p /var/log/php-fpm
+          sudo chown www-data:www-data /var/log/php-fpm
+          
+          # 复制PHP配置文件
+          sudo cp /usr/local/php/lib/php.ini-development /usr/local/php/etc/php.ini
+          sudo sed -i 's/;date.timezone =/date.timezone = UTC/' /usr/local/php/etc/php.ini
+
+      - name: 验证 PHP-FPM 安装
+        run: |
+          # 检查FPM版本
+          /usr/local/php/sbin/php-fpm -v
+          
+          # 检查FPM配置
+          /usr/local/php/sbin/php-fpm -t
+          
+          # 启动FPM服务并验证
+          sudo /usr/local/php/sbin/php-fpm
+          sleep 2
+          ps aux | grep php-fpm
+
+      - name: 打包编译产物
+        run: |
+          # 打包PHP（含FPM）和OpenSSL
+          sudo tar -zcf php-${{ matrix.php-version }}-fpm-openssl-1.1.1w.tar.gz \
+            /usr/local/php /usr/local/openssl-1.1.1 \
+            /var/log/php-fpm  # 包含日志目录
+
+      - name: 上传产物到 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-${{ matrix.php-version }}-fpm-with-openssl
+          path: php-${{ matrix.php-version }}-fpm-openssl-1.1.1w.tar.gz
+          retention-days: 7
+    

@@ -43,6 +43,7 @@ jobs:
         echo "CONF_PATH=conf" >> $GITHUB_ENV
         echo "PID_PATH=run" >> $GITHUB_ENV
         echo "LOG_PATH=logs" >> $GITHUB_ENV
+        echo "SSL_PATH=ssl" >> $GITHUB_ENV
         echo "TMP_PATH=tmp" >> $GITHUB_ENV
         echo "CLIENT_BODY_TEMP_PATH=\${TMP_PATH}/client_body" >> $GITHUB_ENV
         echo "PROXY_TEMP_PATH=\${TMP_PATH}/proxy" >> $GITHUB_ENV
@@ -148,6 +149,7 @@ jobs:
         # mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.CONF_PATH }}
         # mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.PID_PATH }}
         # mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.LOG_PATH }}
+        mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.SSL_PATH }}
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.CLIENT_BODY_TEMP_PATH }}
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.PROXY_TEMP_PATH }}
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.FASTCGI_TEMP_PATH }}
@@ -155,6 +157,8 @@ jobs:
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.SCGI_TEMP_PATH }}
         cp -r conf/ ${{env.INSTALL_PREFIX}}/
         cp -r scripts ${{env.INSTALL_PREFIX}}/
+        cp -r html/ ${{env.INSTALL_PREFIX}}/html/
+        cp nginx.service.default ${{env.INSTALL_PREFIX}}/
 
         CONF=${{env.INSTALL_PREFIX}}/conf/conf.d/cdn/cloudflare/set_real_ip_from.conf
         # 清空文件内容
@@ -167,6 +171,11 @@ jobs:
         for i in `curl -s -L https://www.cloudflare.com/ips-v6`; do
           echo "set_real_ip_from $i;" >> $CONF;
         done
+
+        # 构建虚拟证书
+        CERT_DIR=${{env.INSTALL_PREFIX }}/${{ env.CONF_PATH }}/${{ env.SSL_PATH }}  # 证书存放目录
+        openssl req -x509 -nodes -days 7300 -newkey rsa:2048 -keyout $CERT_DIR/dummy.key -out $CERT_DIR/dummy.crt \
+          -subj "/C=US/ST=State/L=City/O=Organization/OU=Department/CN=localhost"
 
     - name: Verify custom paths configuration
       run: |

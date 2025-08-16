@@ -1,0 +1,30 @@
+[Unit]
+Description=Nginx - High Performance Web Server
+Documentation=http://nginx.org/en/docs/
+After=network.target network-online.target
+Requires=network-online.target
+
+[Service]
+Type=forking
+# User=nobody
+# Group=nobody
+WorkingDirectory=/usr/local/nginx
+#PIDFile=/usr/local/nginx/run/nginx.pid
+ExecStart=/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf -p /usr/local/nginx
+ExecReload=/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf -p /usr/local/nginx -s reload
+ExecStop=/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf -p /usr/local/nginx -s stop
+TimeoutStopSec=5s
+LimitNOFILE=100000
+Restart=on-failure
+StartLimitInterval=60s
+StartLimitBurst=3
+# MemoryMax=1G
+MemoryMax=512M
+# MemoryHigh=500M
+CPUQuota=60%
+# 允许服务以普通用户身份绑定特权端口
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+
+[Install]
+WantedBy=multi-user.target
