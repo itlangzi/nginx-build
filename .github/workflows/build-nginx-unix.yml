@@ -144,7 +144,7 @@ jobs:
         # mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.CONF_PATH }}
         # mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.PID_PATH }}
         # mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.LOG_PATH }}
-        mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.SSL_PATH }}
+        mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.CONF_PATH }}/${{ env.SSL_PATH }}
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.CLIENT_BODY_TEMP_PATH }}
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.PROXY_TEMP_PATH }}
         mkdir -p ${{env.INSTALL_PREFIX }}/${{ env.FASTCGI_TEMP_PATH }}
